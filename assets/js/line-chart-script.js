@@ -38,10 +38,7 @@ var data1 = [
 	{
 		date : '2013-11-11',
 		value: 888
-	}
-];
-
-var data2 = [
+	},
 	{
 		date : '2005-02-22',
 		value: 950
@@ -85,8 +82,125 @@ var data2 = [
 	{
 		date : '2016-03-16',
 		value: 4500
+	},
+	{
+		date : '2016-01-16',
+		value: 4500
+	},
+	{
+		date : '2016-02-16',
+		value: 4501
+	},
+	{
+		date : '2016-03-16',
+		value: 4502
+	},
+	{
+		date : '2016-04-16',
+		value: 4503
+	},
+	{
+		date : '2016-05-16',
+		value: 4504
+	},
+	{
+		date : '2016-06-16',
+		value: 4600
+	},
+	{
+		date : '2016-07-16',
+		value: 4700
+	},
+	{
+		date : '2016-08-16',
+		value: 4800
+	},
+	{
+		date : '2016-09-16',
+		value: 4900
+	},
+	{
+		date : '2016-10-16',
+		value: 5000
+	},
+	{
+		date : '2016-11-16',
+		value: 5100
+	},
+	{
+		date : '2016-12-16',
+		value: 5200
+	},
+	{
+		date : '2017-01-16',
+		value: 5300
+	},
+	{
+		date : '2017-02-16',
+		value: 5400
+	},
+	{
+		date : '2017-03-16',
+		value: 5500
+	},
+	{
+		date : '2017-04-16',
+		value: 5600
+	},
+	{
+		date : '2017-05-16',
+		value: 5700
+	},
+	{
+		date : '2017-06-16',
+		value: 5800
+	},
+	{
+		date : '2017-07-16',
+		value: 5900
+	},
+	{
+		date : '2017-08-16',
+		value: 6000
+	},
+	{
+		date : '2017-09-16',
+		value: 6100
+	},
+	{
+		date : '2017-10-16',
+		value: 6200
+	},
+	{
+		date : '2017-11-16',
+		value: 6300
+	},
+	{
+		date : '2017-12-16',
+		value: 6400
+	},
+	{
+		date : '2018-01-16',
+		value: 6500
+	},
+	{
+		date : '2018-02-16',
+		value: 6600
+	},
+	{
+		date : '2018-03-16',
+		value: 6700
+	},
+	{
+		date : '2018-04-16',
+		value: 6800
+	},
+	{
+		date : '2018-05-16',
+		value: 6900
 	}
 ];
+
 
 $(document).ready(function () {
 	init();
@@ -108,26 +222,26 @@ $(document).ready(function () {
 	});
 });
 
-var chartContainer;
-var svg;
-var marginContainer;
-var x;
-var y;
-var xAxis;
-var yAxis;
-var width;
-var height;
-var line;
-var area;
-var startData;
-var currentData = 'data1';
+let chartContainer,
+	svg,
+	marginContainer,
+	x,
+	y,
+	xAxis,
+	yAxis,
+	width,
+	height,
+	line,
+	area,
+	startData,
+	currentData = 'data1';
 
-var margin   = {top: 20, right: 30, bottom: 30, left: 40};
-var maxWidth = 800 - margin.left - margin.right;
+let margin   = {top: 20, right: 30, bottom: 30, left: 40},
+	maxWidth = 800 - margin.left - margin.right;
 
-var detailWidth  = 150;
-var detailHeight = 75;
-var detailMargin = 15;
+let detailWidth  = 150,
+	detailHeight = 75,
+	detailMargin = 15;
 
 function init() {
 	chartContainer  = d3.select('.chart-container');
@@ -136,9 +250,8 @@ function init() {
 }
 
 function render() {
-	var data = eval(currentData);
-	
-	var parse = d3.time.format('%Y-%m-%d').parse;
+	let data = eval(currentData),
+		parse = d3.time.format('%Y-%m-%d').parse;
 	
 	data = data.map(function ( datum ) {
 		if ( typeof datum.date == 'string' ) {
@@ -237,12 +350,18 @@ function render() {
 					   }
 				   });
 }
-
+let dataObj = {};
 function drawCircle( datum, index ) {
 	circleContainer.datum(datum)
 				   .append('circle')
 				   .attr('class', 'circle')
 				   .attr('r', 0)
+				   .style("fill", function(d) {            // <== Add these
+					   dataObj = _.max(data1, function ( d ) { return d.value; });
+					   if ( dataObj && dataObj.value == d.value ) {
+						   return "green"
+					   }
+				   })
 				   .attr(
 					   'cx',
 					   function ( d ) {
@@ -292,8 +411,7 @@ function drawCircle( datum, index ) {
 				   .delay(100 * index)
 				   .duration(750)
 				   .ease('elastic', 1.5, .75)
-				   .attr('r', 6)
-	;
+				   .attr('r', 6);
 }
 
 function drawCircles( data, container ) {
@@ -339,10 +457,9 @@ function showCircleDetail( data ) {
 		   .attr('rx', 5)
 		   .attr('ry', 5);
 	
-	var text = details.append('text')
-					  .attr('class', 'text');
-	
-	var dateFormat = d3.time.format("%m/%d/%Y");
+	let text = details.append('text')
+					  .attr('class', 'text'),
+		dateFormat = d3.time.format("%m/%d/%Y");
 	
 	text.append('tspan')
 		.attr('class', 'price')
@@ -447,7 +564,7 @@ function updateData( data ) {
 }
 
 function getDimensions() {
-	var containerWidth = parseInt(d3.select('.chart-container').style('width'));
+	let containerWidth = parseInt(d3.select('.chart-container').style('width'));
 	margin.top         = 20;
 	margin.right       = 30;
 	margin.left        = 40;
