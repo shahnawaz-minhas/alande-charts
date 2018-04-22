@@ -1,148 +1,465 @@
-let data = [
-	{year: 2000, score: 1192},
-	{year: 2001, score: 1234},
-	{year: 2002, score: 1463},
-	{year: 2003, score: 1537},
-	{year: 2004, score: 1334},
-	{year: 2005, score: 1134},
-	{year: 2006, score: 1234},
-	{year: 2007, score: 1484},
-	{year: 2008, score: 1562},
-	{year: 2009, score: 1427},
-	{year: 2010, score: 1325},
-	{year: 2011, score: 1484},
-	{year: 2012, score: 1671},
-	{year: 2013, score: 1587},
-	{year: 2014, score: 1394},
-	{year: 2015, score: 1124},
-	{year: 2016, score: 14437},
-	{year: 2017, score: 1437},
-	{year: 2018, score: 14347},
-	{year: 2019, score: 14567},
-	{year: 2020, score: 14567},
-	{year: 2021, score: 1527},
-	{year: 2022, score: 1727},
-	{year: 2023, score: 1927},
-	{year: 2024, score: 1127},
-	{year: 2025, score: 1227},
-	{year: 2026, score: 1827},
-	{year: 2027, score: 1927},
-	{year: 2028, score: 1027},
-	{year: 2029, score: 1927},
-	{year: 2030, score: 1437},
-	{year: 2031, score: 1437},
-	{year: 2032, score: 14207},
-	{year: 2033, score: 1421},
-	{year: 2034, score: 1422},
-	{year: 2035, score: 1423},
-	{year: 2036, score: 1424},
-	{year: 2037, score: 1425},
-	{year: 2038, score: 1426},
-	{year: 2039, score: 2427},
-	{year: 2040, score: 2427},
-	{year: 2041, score: 2427},
-	{year: 2042, score: 2427},
-	{year: 2043, score: 2427},
-	{year: 2044, score: 3427},
-	{year: 2045, score: 4427},
-	{year: 2046, score: 5427},
-	{year: 2047, score: 6427},
-	{year: 2048, score: 7427},
-	{year: 2049, score: 8427},
-	{year: 2050, score: 9427},
-	{year: 2051, score: 7427},
-	{year: 2052, score: 1127},
-	{year: 2053, score: 1227}
+var data1 = [
+	{
+		date : '2006-02-22',
+		value: 950
+	},
+	{
+		date : '2006-08-22',
+		value: 1000
+	},
+	{
+		date : '2007-01-11',
+		value: 700
+	},
+	{
+		date : '2008-10-01',
+		value: 534
+	},
+	{
+		date : '2009-02-24',
+		value: 1423
+	},
+	{
+		date : '2010-12-30',
+		value: 1222
+	},
+	{
+		date : '2011-05-15',
+		value: 948
+	},
+	{
+		date : '2012-04-02',
+		value: 1938
+	},
+	{
+		date : '2013-08-19',
+		value: 1245
+	},
+	{
+		date : '2013-11-11',
+		value: 888
+	}
 ];
 
-//Parse date & time
-let parseDate = d3.timeParse("%Y");
+var data2 = [
+	{
+		date : '2005-02-22',
+		value: 950
+	},
+	{
+		date : '2006-08-22',
+		value: 1000
+	},
+	{
+		date : '2007-01-11',
+		value: 700
+	},
+	{
+		date : '2008-10-01',
+		value: 534
+	},
+	{
+		date : '2009-02-24',
+		value: 1423
+	},
+	{
+		date : '2010-12-30',
+		value: 1222
+	},
+	{
+		date : '2011-05-15',
+		value: 948
+	},
+	{
+		date : '2012-04-02',
+		value: 1938
+	},
+	{
+		date : '2013-08-19',
+		value: 1245
+	},
+	{
+		date : '2015-11-11',
+		value: 2000
+	},
+	{
+		date : '2016-03-16',
+		value: 4500
+	}
+];
 
-// force types
-function type(dataArray) {
-	dataArray.forEach(function(d) {
-		d.year = parseDate(d.year);
-		d.retention = +d.score;
+$(document).ready(function () {
+	init();
+	render();
+	updateData(data1);
+	/*d3.select('#toggleData').on('click', function () {
+		if ( currentData == 'data1' ) {
+			updateData(data2);
+			currentData = 'data2';
+		}
+		else if ( currentData == 'data2' ) {
+			updateData(data1);
+			currentData = 'data1';
+		}
+	});*/
+	
+	d3.select(window).on('resize', function () {
+		resize();
 	});
-	return dataArray;
-}
-data = type(data);
+});
 
-// Set the dimensions of the canvas / graph
-let margin = {top: 30, right: 20, bottom: 30, left: 50},
-	width, // width gets defined below
-	height = 250 - margin.top - margin.bottom;
+var chartContainer;
+var svg;
+var marginContainer;
+var x;
+var y;
+var xAxis;
+var yAxis;
+var width;
+var height;
+var line;
+var area;
+var startData;
+var currentData = 'data1';
 
-// Set the scales ranges
-let xScale = d3.scaleTime(),
-	yScale = d3.scaleLinear().range([height, 0]);
+var margin   = {top: 20, right: 30, bottom: 30, left: 40};
+var maxWidth = 800 - margin.left - margin.right;
 
-// Define the axes
-let xAxis = d3.axisBottom().scale(xScale),
-	yAxis = d3.axisLeft().scale(yScale);
+var detailWidth  = 150;
+var detailHeight = 75;
+var detailMargin = 15;
 
-// create a line
-let line = d3.line();
-
-// Add the svg canvas
-let svg = d3.select("body")
-			.append("svg")
-			.attr("height", height + margin.top + margin.bottom);
-
-let artboard = svg.append("g")
-				  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// set the domain range from the data
-xScale.domain(d3.extent(data, function(d) { return d.year; }));
-yScale.domain([
-	d3.min(data, function(d) { return Math.floor(d.score - 200); }),
-	d3.max(data, function(d) { return Math.floor(d.score + 200); })
-]);
-
-// draw the line created above
-let path = artboard.append("path").data([data])
-				   .style('fill', 'none')
-				   .style('stroke', 'steelblue')
-				   .style('stroke-width', '2px');
-
-// Add the X Axis
-var xAxisEl = artboard.append("g")
-					  .attr("transform", "translate(0," + height + ")");
-
-// Add the Y Axis
-// we aren't resizing height in this demo so the yAxis stays static, we don't need to call this every resize
-let yAxisEl = artboard.append("g")
-					  .call(yAxis);
-
-//////////////////////////////////////////////
-// Drawing ///////////////////////////////////
-//////////////////////////////////////////////
-function drawChart() {
-	// reset the width
-	width = parseInt(d3.select('.chart').style('width'), 10) - margin.left - margin.right;
-	
-	// set the svg dimensions
-	svg.attr("width", width + margin.left + margin.right);
-	
-	// Set new range for xScale
-	xScale.range([0, width]);
-	
-	// give the x axis the resized scale
-	xAxis.scale(xScale);
-	
-	// draw the new xAxis
-	xAxisEl.call(xAxis);
-	
-	// specify new properties for the line
-	line.x(function(d) { return xScale(d.year); })
-		.y(function(d) { return yScale(d.score); });
-	
-	// draw the path based on the line created above
-	path.attr('d', line);
+function init() {
+	chartContainer  = d3.select('.chart-container');
+	svg             = chartContainer.append('svg');
+	marginContainer = svg.append('g').attr('class', 'margin-container');
 }
 
-// call this once to draw the chart initially
-drawChart();
+function render() {
+	var data = eval(currentData);
+	
+	var parse = d3.time.format('%Y-%m-%d').parse;
+	
+	data = data.map(function ( datum ) {
+		if ( typeof datum.date == 'string' ) {
+			datum.date = parse(datum.date);
+		}
+		
+		return datum;
+	});
+	
+	getDimensions();
+	
+	svg.attr("width", width + margin.left + margin.right)
+	   .attr("height", height + margin.top + margin.bottom);
+	
+	marginContainer
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	x = d3.time.scale().range([ 0, width ]);
+	y = d3.scale.linear().range([ height, 0 ]);
+	x.domain(d3.extent(data, function ( d ) { return d.date; }));
+	y.domain([ 0, d3.max(data, function ( d ) { return d.value; }) * 1.25 ]);
+	
+	area = d3.svg.area()
+			 .x(function ( d ) { return x(d.date); })
+			 .y0(height)
+			 .y1(function ( d ) { return y(d.value); });
+	
+	line = d3.svg.area()
+			 .x(function ( d ) { return x(d.date); })
+			 .y(function ( d ) { return y(d.value); });
+	
+	startData = data.map(function ( datum ) {
+		return {
+			date : datum.date,
+			value: 0
+		};
+	});
+	
+	xAxis = d3.svg.axis()
+			  .scale(x)
+			  .orient('bottom');
+	
+	yAxis = d3.svg.axis()
+			  .scale(y)
+			  .orient('left');
+	
+	marginContainer.append('g')
+				   .attr('class', 'x axis')
+				   .attr('transform', 'translate(0,' + height + ')')
+				   .call(xAxis)
+				   .selectAll("text")
+				   .style("text-anchor", "end")
+				   .attr("dx", "-.8em")
+				   .attr("dy", ".15em")
+				   .attr("transform", "rotate(-65)" );
+	
+	marginContainer.append('g')
+				   .attr('class', 'y axis')
+				   .call(yAxis)
+				   .append('text')
+				   .attr('transform', 'rotate(-90)')
+				   .attr('y', '1.5em')
+				   .style('text-anchor', 'end')
+				   .text('Price ($)');
+	
+	marginContainer.append('path')
+				   .datum(startData)
+				   .attr('class', 'line')
+				   .attr('d', line)
+				   .transition()
+				   .duration(500)
+				   .ease('quad')
+				   .attrTween('d', function () {
+					   var interpolator = d3.interpolateArray(startData, data);
+		
+					   return function ( t ) {
+						   return line(interpolator(t));
+					   }
+				   })
+				   .each('end', function () {
+					   drawCircles(data, marginContainer);
+				   });
+	
+	marginContainer.append('path')
+				   .datum(startData)
+				   .attr('class', 'area')
+				   .attr('d', area)
+				   .transition()
+				   .duration(500)
+				   .ease('quad')
+				   .attrTween('d', function () {
+					   var interpolator = d3.interpolateArray(startData, data);
+		
+					   return function ( t ) {
+						   return area(interpolator(t));
+					   }
+				   });
+}
 
-// redraw chart on resize
-window.addEventListener('resize', drawChart);
+function drawCircle( datum, index ) {
+	circleContainer.datum(datum)
+				   .append('circle')
+				   .attr('class', 'circle')
+				   .attr('r', 0)
+				   .attr(
+					   'cx',
+					   function ( d ) {
+						   return x(d.date);
+					   }
+				   )
+				   .attr(
+					   'cy',
+					   function ( d ) {
+						   return y(d.value);
+					   }
+				   )
+				   .on('mouseenter', function ( d ) {
+					   d3.select(this)
+						 .attr(
+							 'class',
+							 'circle active'
+						 )
+						 .attr('r', 7);
+		
+					   d.active = true;
+		
+					   showCircleDetail(d);
+				   })
+				   .on('mouseout', function ( d ) {
+					   d3.select(this)
+						 .attr(
+							 'class',
+							 'circle'
+						 )
+						 .attr('r', 6);
+		
+					   if ( d.active ) {
+						   hideCircleDetails();
+			
+						   d.active = false;
+					   }
+				   })
+				   .on('click touch', function ( d ) {
+					   if ( d.active ) {
+						   showCircleDetail(d)
+					   } else {
+						   hideCircleDetails();
+					   }
+				   })
+				   .transition()
+				   .delay(100 * index)
+				   .duration(750)
+				   .ease('elastic', 1.5, .75)
+				   .attr('r', 6)
+	;
+}
+
+function drawCircles( data, container ) {
+	circleContainer = container.append('g').attr('class', 'circles');
+	data.forEach(function ( datum, index ) {
+		drawCircle(datum, index);
+	});
+}
+
+function hideCircleDetails() {
+	circleContainer.selectAll('.bubble')
+				   .remove();
+}
+
+function showCircleDetail( data ) {
+	var details = circleContainer.append('g')
+								 .attr('class', 'bubble')
+								 .attr(
+									 'transform',
+									 function () {
+										 var result = 'translate(';
+			
+										 var xVal = x(data.date) - detailWidth / 2;
+										 if ( xVal + detailWidth > width ) {
+											 xVal = width - detailWidth;
+										 }
+										 else if ( xVal < 0 ) {
+											 xVal = 0;
+										 }
+			
+										 result += xVal;
+										 result += ', ';
+										 result += y(data.value) - detailHeight - detailMargin;
+										 result += ')';
+			
+										 return result;
+									 }
+								 );
+	
+	details.append('rect')
+		   .attr('width', detailWidth)
+		   .attr('height', detailHeight)
+		   .attr('rx', 5)
+		   .attr('ry', 5);
+	
+	var text = details.append('text')
+					  .attr('class', 'text');
+	
+	var dateFormat = d3.time.format("%m/%d/%Y");
+	
+	text.append('tspan')
+		.attr('class', 'price')
+		.attr('x', detailWidth / 2)
+		.attr('y', detailHeight / 3)
+		.attr('text-anchor', 'middle')
+		.text('Price: ' + data.value);
+	
+	text.append('tspan')
+		.attr('class', 'date')
+		.attr('x', detailWidth / 2)
+		.attr('y', detailHeight / 4 * 3)
+		.attr('text-anchor', 'middle')
+		.text('Date: ' + dateFormat(data.date));
+}
+
+function updateData( data ) {
+	
+	var parse = d3.time.format('%Y-%m-%d').parse;
+	
+	data = data.map(function ( datum ) {
+		if ( typeof datum.date == 'string' ) {
+			datum.date = parse(datum.date);
+		}
+		return datum;
+	});
+	
+	getDimensions();
+	
+	svg.attr("width", width + margin.left + margin.right)
+	   .attr("height", height + margin.top + margin.bottom);
+	
+	marginContainer
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	x = d3.time.scale().range([ 0, width ]);
+	y = d3.scale.linear().range([ height, 0 ]);
+	x.domain(d3.extent(data, function ( d ) { return d.date; }));
+	y.domain([ 0, d3.max(data, function ( d ) { return d.value; }) * 1.25 ]);
+	
+	xAxis = d3.svg.axis()
+			  .scale(x)
+			  .orient('bottom');
+	
+	yAxis = d3.svg.axis()
+			  .scale(y)
+			  .orient('left');
+	
+	area = d3.svg.area()
+			 .x(function ( d ) { return x(d.date); })
+			 .y0(height)
+			 .y1(function ( d ) { return y(d.value); });
+	
+	line = d3.svg.area()
+			 .x(function ( d ) { return x(d.date); })
+			 .y(function ( d ) { return y(d.value); });
+	
+	startData = data.map(function ( datum ) {
+		return {
+			date : datum.date,
+			value: 0
+		};
+	});
+	
+	marginContainer.select('.x.axis')
+				   .transition()
+				   .attr('transform', 'translate(0,' + height + ')')
+				   .call(xAxis);
+	
+	marginContainer.select('.y.axis')
+				   .transition()
+				   .call(yAxis);
+	
+	marginContainer.select('.circles').remove();
+	
+	marginContainer.select('.line')
+				   .transition()
+				   .duration(500)
+				   .ease('quad')
+				   .attrTween('d', function () {
+					   var interpolator = d3.interpolateArray(startData, data);
+		
+					   return function ( t ) {
+						   return line(interpolator(t));
+					   }
+				   })
+				   .each('end', function () {
+					   drawCircles(data, marginContainer);
+				   });
+	
+	marginContainer.select('.area')
+				   .transition()
+				   .duration(500)
+				   .ease('quad')
+				   .attrTween('d', function () {
+					   var interpolator = d3.interpolateArray(startData, data);
+		
+					   return function ( t ) {
+						   return area(interpolator(t));
+					   }
+				   });
+}
+
+function getDimensions() {
+	var containerWidth = parseInt(d3.select('.chart-container').style('width'));
+	margin.top         = 20;
+	margin.right       = 30;
+	margin.left        = 40;
+	margin.bottom      = 30;
+	
+	width = containerWidth - margin.left - margin.right;
+	if ( width > maxWidth ) {
+		width = maxWidth;
+	}
+	height = .75 * width;
+}
+
+function resize() {
+	updateData(eval(currentData));
+}
