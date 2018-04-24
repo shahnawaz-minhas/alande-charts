@@ -27,6 +27,9 @@ let drawChart = function() {
 			"entry_date": "2018-03-27"
 		}
 	];
+	data.sort(function(a,b){
+		return new Date(a.entry_date) - new Date(b.entry_date);
+	});
 	
 	console.log(data);
 	
