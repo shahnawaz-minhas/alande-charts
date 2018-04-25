@@ -7,7 +7,7 @@ let drawChart = function() {
 		margin     = {top: 40, right: 20, bottom: 100, left: 70},
 		width      = ( windowSize.width - ( ( 10 * windowSize.width ) / 100 ) ) - margin.left - margin.right,
 		height     = ( windowSize.height - ( ( 10 * windowSize.height ) / 100 ) ) - margin.top - margin.bottom;
-	
+
 	let data = [
 		{
 			"score"     : 125,
@@ -33,9 +33,9 @@ let drawChart = function() {
 	data.sort(function(a,b){
 		return new Date(a.entry_date) - new Date(b.entry_date);
 	});
-	
+
 	console.log(data);
-	
+
 	let x = d3.scale.ordinal().rangeRoundBands([ 0, width ], .1),
 		y = d3.scale.linear().range([ height, 0 ]),
 		xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(10),
@@ -43,18 +43,19 @@ let drawChart = function() {
 		tip = d3.tip().attr('class', 'd3-tip').offset([ -10, 0 ])
 				.html(function ( d ) {
 					return ( "<strong>score:</strong><span style='color:red'>" + d.score + "</span>" );
-				}),
-		svg = d3.select(".chart").append("svg")
+				});
+
+	let svg = d3.select(".chart").append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
 				.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
+
 	svg.call(tip);
-	
+
 	x.domain(data.map(function ( d ) { return d.entry_date; }));
 	y.domain([ 0, d3.max(data, function ( d ) { return d.score; }) ]);
-	
+
 	svg.append("g")
 	   .attr("class", "x axis")
 	   .attr("transform", "translate(0," + height + ")")
@@ -64,7 +65,7 @@ let drawChart = function() {
 	   .attr("dx", "-.8em")
 	   .attr("dy", ".15em")
 	   .attr("transform", "rotate(-65)");
-	
+
 	svg.append("g")
 	   .attr("class", "y axis")
 	   .call(yAxis)
@@ -74,7 +75,7 @@ let drawChart = function() {
 	   .attr("dy", ".71em")
 	   .style("text-anchor", "end")
 	   .text("Scores");
-	
+
 	let dataObj = {};
 	svg.selectAll(".bar")
 	   .data(data)
@@ -92,17 +93,18 @@ let drawChart = function() {
 	   .attr("height", function ( d ) { return height - y(d.score); })
 	   .on('mouseover', tip.show)
 	   .on('mouseout', tip.hide);
-	
-	
+
+
 	function type( d ) {
 		d.score = +d.score;
 		return d;
 	}
 };
+
 $(document).ready(function () {
 
     drawChart();
     d3.select(window).on('resize', function () {
-drawChart();
+        drawChart();
     });
 });
